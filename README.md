@@ -1,6 +1,6 @@
 # QMS Chatbo
 
-Assistant conversationnel pour les systèmes de gestion qualité (QMS)
+## *Assistant conversationnel pour les systèmes de gestion qualité (QMS)*
 
 <p align="center">
   <img src="https://img.shields.io/badge/FastAPI-0.104-009688?style=for-the-badge&logo=fastapi&logoColor=white"/>
