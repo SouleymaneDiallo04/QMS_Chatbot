@@ -1,4 +1,4 @@
-# QMS Chatbot v2
+# QMS Chatbo
 
 Assistant conversationnel pour les systèmes de gestion qualité (QMS)
 
