@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Form, BackgroundTasks, Query, Request, Header
+﻿from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Form, BackgroundTasks, Query, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -218,25 +218,40 @@ def on_startup():
     db = SessionLocal()
     try:
         seed_default_templates(db)
+
+        # Création du compte admin par défaut s'il n'existe pas
+        admin = db.query(User).filter(User.username == "admin").first()
+        if not admin:
+            admin_user = User(
+                username="admin",
+                password_hash=get_password_hash("admin123"),
+                role="admin",
+                site="default"
+            )
+            db.add(admin_user)
+            db.commit()
+            logger.warning("✅ Admin user created: admin / admin123")
+        else:
+            logger.info("Admin user already exists")
+
     finally:
         db.close()
+
     logger.warning(
         "RAG: embedding model is %s (Chroma dir=%s). If results are wrong or empty after an upgrade, "
         "delete the Chroma folder and re-upload documents so vectors are rebuilt.",
         EMBEDDING_MODEL_NAME,
         CHROMA_PERSIST_DIR,
     )
-    # Pré-chargement du modèle d'embedding au démarrage pour éviter le délai
-    # sur la première requête utilisateur (le modèle peut prendre 1-2 min à charger).
+    # Pré-chargement du modèle d'embedding
     try:
         from rag import get_embeddings, get_vector_store
         logger.warning("RAG: pré-chargement du modèle d'embedding en mémoire...")
         get_embeddings()
         get_vector_store()
-        logger.warning("RAG: modèle pret !")
+        logger.warning("RAG: modèle prêt !")
     except Exception as _e:
-        logger.error("RAG: echec du pre-chargement -- %s", _e)
-
+        logger.error("RAG: échec du pré-chargement -- %s", _e)
 
 def _section_ref(doc) -> str:
     meta = doc.metadata or {}
